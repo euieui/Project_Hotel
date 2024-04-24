@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.ezen.spg.dao.IBookDao">
+
+	<select id="bookedRoom" resultType="_int">
+		select hotelnum from book_view where checkout > to_date(#{param1},'yyyy-mm-dd') 
+		and checkin &lt; to_date(#{param2},'yyyy-mm-dd') and kind = #{param3}
+	</select>
+	
+	<select id="maxPeopleNumber" resultType="_int">
+		select distinct persons from hotel where kind = #{param1}	
+	</select>
+	
+	<select id="maxRoomNumber" resultType="_int">
+		select count(*) from hotel where kind = #{param1}
+	</select>
+	
+	<select id="selectRoomNum" resultType="int">
+		select hotelnum from hotel where kind=#{param1}
+	</select>
+	
+	<select id="getAllCount1" resultType="_int">
+		select count(*) as cnt from book_view where id=#{param1}
+	</select>
+	<select id="getAllCount2" resultType="_int">
+		select count(*) as cnt from book_view where id=#{param1} and booknum=#{param2}
+	</select>
+	<select id="getAllCount3" resultType="_int">
+		select count(*) as cnt from book_view where id=#{param1} 
+		and to_char(checkin, 'YYYYMMDD')=#{param2} 
+		and to_char(checkout, 'YYYYMMDD')=#{param3}
+	</select>
+	<select id="getAllCount4" resultType="_int">
+		select count(*) as cnt from book_view where id=#{param1} 
+		and to_char(checkout, 'YYYYMMDD')=#{param2}
+
+	</select>
+	<select id="getAllCount5" resultType="_int">
+		select count(*) as cnt from book_view where id=#{param1} 
+		and to_char(checkin, 'YYYYMMDD')=#{param2}
+	</select>
+	
+	<select id="getbooklist1" resultType="com.ezen.spg.dto.BookVO">
+		select * from( 
+		select * from( 
+		select rownum as rn, b.* from 
+		( (select * from book_view where id=#{param1} order by booknum desc) b ) 
+		) where rn&gt;=#{param2.startNum} 
+		) where rn&lt;=#{param2.endNum}
+	</select>
+	<select id="getbooklist2" resultType="com.ezen.spg.dto.BookVO">
+		select * from( 
+		select * from( 
+		select rownum as rn, b.* from 
+		( (select * from book_view where id=#{param1} 
+		and to_char(checkin, 'YYYYMMDD')=#{param3} 
+		and to_char(checkout, 'YYYYMMDD')=#{param4} order by booknum desc) b ) 
+		) where rn&gt;=#{param2.startNum} 
+		) where rn&lt;=#{param2.endNum}
+	</select>
+	<select id="getbooklist3" resultType="com.ezen.spg.dto.BookVO">
+		select * from( 
+		select * from( 
+		select rownum as rn, b.* from 
+		( (select * from book_view where id=#{param1} 
+		and to_char(checkout, 'YYYYMMDD')=#{param3} 
+		order by booknum desc) b ) 
+		) where rn&gt;=#{param2.startNum} 
+		) where rn&lt;=#{param2.endNum}
+	</select>
+	<select id="getbooklist4" resultType="com.ezen.spg.dto.BookVO">
+		select * from(
+		select * from(
+		select rownum as rn, b.* from 
+		( (select * from book_view where id=#{param1} 
+		and to_char(checkin, 'YYYYMMDD')=#{param3} 
+		order by booknum desc) b )
+		) where rn&gt;=#{param2.startNum}
+		) where rn&lt;=#{param2.endNum}
+	</select>
+	<select id="getbooklist5" resultType="com.ezen.spg.dto.BookVO">
+		select * from(
+		select * from(
+		select rownum as rn, b.* from 
+		( (select * from book_view where id=#{param1} 
+		and booknum=#{param3} order by booknum desc) b )
+		) where rn&gt;=#{param2.startNum}
+		) where rn&lt;=#{param2.endNum}
+	</select>
+	
+	<insert id="insertRoom">
+		insert into bookdetail (usernum,checkin,checkout,bdseq,booknum,hotelnum) 
+		values(#{param3},to_date(#{param4},'yyyy-mm-dd'),to_date(#{param5},'yyyy-mm-dd'),seq_bookdetail_bdseq.nextval,#{param1},#{param2})
+	</insert>
+	
+	<insert id="insertBook">
+		insert into book values (seq_book_booknum.nextval, #{param1})
+	</insert>
+	
+	<select id="LookupMaxBooknum" resultType="_int">
+		select max(booknum) from book
+	</select>
+	
+	<update id="requestBookCancel">
+		update bookdetail set result='2' , refund=#{param2} where bdseq=#{param1}
+	</update>
+	
+	<update id="bookCancel">
+		update bookdetail set result='3' where bdseq=#{param1}
+	</update>
+	
+	<select id="getMaxBed" resultType="_int">
+		select persons from hotel where hotelnum=#{param1}
+	</select>
+	
+	<update id="ChangePeople">
+		update bookdetail set usernum=#{param2} where bdseq=#{param1}
+	</update>
+	
+</mapper>
